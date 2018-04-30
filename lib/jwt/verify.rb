@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
-require 'active_model'
 require 'jwt/error'
-require 'jwt/verifiable'
+require 'jwt/claim_verifiable'
 
 module JWT
   # JWT verify methods
   class Verify
-    include Verifiable
+    include ClaimVerifiable
 
     DEFAULTS = {
       leeway: 0,

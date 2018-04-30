@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require 'active_model'
+
 module JWT
-  module Verifiable
+  module ClaimVerifiable
     attr_reader :payload, :options, :raise_errors
 
     def self.included(klass)

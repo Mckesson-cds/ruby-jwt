@@ -2,6 +2,8 @@
 
 module JWT
   module Verifiable
+    attr_reader :payload, :options, :raise_errors
+
     def self.included(klass)
       klass.include ActiveModel::Validations unless klass.ancestors.include? ActiveModel::Validations
       klass.validate :verify_aud

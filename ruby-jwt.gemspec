@@ -4,7 +4,7 @@ require 'jwt/version'
 
 Gem::Specification.new do |spec|
   spec.name = 'jwt'
-  spec.version = JWT.gem_version
+  spec.version = '1.5.7'
   spec.authors = [
     'Tim Rudat'
   ]

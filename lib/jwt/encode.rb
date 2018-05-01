@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'jwt/signature'
 
 # JWT::Encode module
 module JWT
@@ -19,8 +20,6 @@ module JWT
       @header_fields = header_fields
       @segments = encode_segments
     end
-
-    private
 
     def encoded_header
       header = { 'alg' => @algorithm }.merge(@header_fields)

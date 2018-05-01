@@ -1,3 +1,8 @@
+# frozen_string_literal: true
+
+require 'jwt/security_utils'
+require 'jwt/structs'
+
 module JWT
   module Algos
     module Hmac
@@ -25,7 +30,7 @@ module JWT
             false
           end
         else
-          SecurityUtils.secure_compare(signature, sign(JWT::Signature::ToSign.new(algorithm, signing_input, public_key)))
+          SecurityUtils.secure_compare(signature, sign(ToSign.new(algorithm, signing_input, public_key)))
         end
       end
     end

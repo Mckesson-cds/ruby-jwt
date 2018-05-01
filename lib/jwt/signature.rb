@@ -7,6 +7,8 @@ require 'jwt/algos/eddsa'
 require 'jwt/algos/ecdsa'
 require 'jwt/algos/rsa'
 require 'jwt/algos/unsupported'
+require 'jwt/structs'
+
 begin
   require 'rbnacl'
 rescue LoadError
@@ -17,7 +19,8 @@ end
 module JWT
   # Signature logic for JWT
   module Signature
-    extend self
+    module_function
+
     ALGOS = [
       Algos::Hmac,
       Algos::Ecdsa,
@@ -25,8 +28,7 @@ module JWT
       Algos::Eddsa,
       Algos::Unsupported
     ].freeze
-    ToSign = Struct.new(:algorithm, :msg, :key)
-    ToVerify = Struct.new(:algorithm, :public_key, :signing_input, :signature)
+
 
     def sign(algorithm, msg, key)
       algo = ALGOS.find do |alg|

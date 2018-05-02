@@ -6,6 +6,7 @@ require 'jwt/default_options'
 require 'jwt/encode'
 require 'jwt/error'
 require 'jwt/signature'
+require 'jwt/signature_verifiable'
 require 'jwt/verify'
 
 # JSON Web Token implementation

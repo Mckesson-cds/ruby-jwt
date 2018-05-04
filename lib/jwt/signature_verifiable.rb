@@ -48,8 +48,9 @@ module JWT
     end
 
     def verify_signature
+      return if algorithm.blank? || key.blank? || signing_input.blank?
       algo = ALGOS.find { |alg| alg.const_get(:SUPPORTED).include? header['alg'] }
-      verified = algo.verify(ToVerify.new(header['alg'], key, signing_input, signature))
+      verified = algo.verify(ToVerify.new(algorithm, key, signing_input, signature))
       handle_error(:base, JWT::VerificationError, 'Signature invalid') unless verified
     rescue OpenSSL::PKey::PKeyError
       handle_error(:base, JWT::VerificationError, 'Signature invalid')

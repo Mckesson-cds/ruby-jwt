@@ -4,7 +4,7 @@ require 'jwt/version'
 
 Gem::Specification.new do |spec|
   spec.name = 'jwt'
-  spec.version = '1.5.7'
+  spec.version = JWT.gem_version
   spec.authors = [
     'Tim Rudat'
   ]
@@ -20,7 +20,6 @@ Gem::Specification.new do |spec|
   spec.test_files = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = %w[lib]
 
-  spec.add_development_dependency 'activemodel'
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'pry-byebug'
   spec.add_development_dependency 'rake'

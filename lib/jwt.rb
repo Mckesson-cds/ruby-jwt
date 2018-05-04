@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+puts "In #{__FILE__}"
+
 require 'base64'
 require 'jwt/decode'
 require 'jwt/default_options'
@@ -15,6 +17,10 @@ require 'jwt/verify'
 # https://tools.ietf.org/html/rfc7519
 module JWT
   include JWT::DefaultOptions
+
+  unless const_defined?(:USE_ACTIVEMODEL_VALIDATIONS)
+    USE_ACTIVEMODEL_VALIDATIONS = false
+  end
 
   module_function
 

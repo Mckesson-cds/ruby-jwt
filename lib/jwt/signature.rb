@@ -29,7 +29,6 @@ module JWT
       Algos::Unsupported
     ].freeze
 
-
     def sign(algorithm, msg, key)
       algo = ALGOS.find do |alg|
         alg.const_get(:SUPPORTED).include? algorithm

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'jwt'
 require 'jwt/encode'
@@ -42,44 +44,16 @@ describe JWT do
   context 'alg: NONE' do
     let(:alg) { 'none' }
 
-    it 'should generate a valid token' do
-      token = JWT.encode payload, nil, alg
-
-      expect(token).to eq data['NONE']
-    end
-
     it 'should decode a valid token' do
       jwt_payload, header = JWT.decode data['NONE'], nil, false
 
       expect(header['alg']).to eq alg
       expect(jwt_payload).to eq payload
     end
-
-    it 'should display a better error message if payload exp is_a?(Time)' do
-      payload['exp'] = Time.now
-
-      expect do
-        JWT.encode payload, nil, alg
-      end.to raise_error JWT::InvalidPayload
-    end
-
-    it 'should display a better error message if payload exp is not an Integer' do
-      payload['exp'] = Time.now.to_i.to_s
-
-      expect do
-        JWT.encode payload, nil, alg
-      end.to raise_error JWT::InvalidPayload
-    end
   end
 
   %w[HS256 HS512256 HS384 HS512].each do |alg|
     context "alg: #{alg}" do
-      it 'should generate a valid token' do
-        token = JWT.encode payload, data[:secret], alg
-
-        expect(token).to eq data[alg]
-      end
-
       it 'should decode a valid token' do
         jwt_payload, header = JWT.decode data[alg], data[:secret], true, algorithm: alg
 
@@ -88,15 +62,14 @@ describe JWT do
       end
 
       it 'wrong secret should raise JWT::DecodeError' do
-        expect do
-          JWT.decode data[alg], 'wrong_secret', true, algorithm: alg
-        end.to raise_error JWT::VerificationError
+        decoder = JWT.decode data[alg], 'wrong_secret', true, algorithm: alg
+        expect(decoder).to be_invalid
+        expect(decode.errors[:base]).to include(match /Validation error/)
       end
 
       it 'wrong secret and verify = false should not raise JWT::DecodeError' do
-        expect do
-          JWT.decode data[alg], 'wrong_secret', false
-        end.not_to raise_error
+        decoder = JWT.decode data[alg], 'wrong_secret', false
+        expect(decoder).to be_valid
       end
     end
   end

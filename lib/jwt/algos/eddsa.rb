@@ -1,6 +1,12 @@
+# frozen_string_literal: true
+
+require 'jwt/raise_error_behavior'
+
 module JWT
   module Algos
     module Eddsa
+      include RaiseErrorBehavior
+
       module_function
 
       SUPPORTED = %w[ED25519].freeze
@@ -14,8 +20,8 @@ module JWT
 
       def verify(to_verify)
         algorithm, public_key, signing_input, signature = to_verify.values
-        raise IncorrectAlgorithm, "payload algorithm is #{algorithm} but #{public_key.primitive} verification key was provided" if algorithm.downcase.to_sym != public_key.primitive
-        raise DecodeError, "key given is a #{public_key.class} but has to be a RbNaCl::Signatures::Ed25519::VerifyKey" if public_key.class != RbNaCl::Signatures::Ed25519::VerifyKey
+        handle_error(:alg, IncorrectAlgorithm, "payload algorithm is #{algorithm} but #{public_key.primitive} verification key was provided") if algorithm.downcase.to_sym != public_key.primitive
+        handle_error(:base, DecodeError, "key given is a #{public_key.class} but has to be a RbNaCl::Signatures::Ed25519::VerifyKey") if public_key.class != RbNaCl::Signatures::Ed25519::VerifyKey
         public_key.verify(signature, signing_input)
       end
     end

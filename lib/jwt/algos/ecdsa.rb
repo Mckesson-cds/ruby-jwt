@@ -1,6 +1,12 @@
+# frozen_string_literal: true
+
+require 'jwt/raise_error_behavior'
+
 module JWT
   module Algos
     module Ecdsa
+      include RaiseErrorBehavior
+
       module_function
 
       SUPPORTED = %w[ES256 ES384 ES512].freeze
@@ -25,7 +31,7 @@ module JWT
         algorithm, public_key, signing_input, signature = to_verify.values
         key_algorithm = NAMED_CURVES[public_key.group.curve_name]
         if algorithm != key_algorithm
-          raise IncorrectAlgorithm, "payload algorithm is #{algorithm} but #{key_algorithm} verification key was provided"
+          handle_error(:alg, IncorrectAlgorithm, "payload algorithm is #{algorithm} but #{key_algorithm} verification key was provided")
         end
         digest = OpenSSL::Digest.new(algorithm.sub('ES', 'sha'))
         public_key.dsa_verify_asn1(digest.digest(signing_input), SecurityUtils.raw_to_asn1(signature, public_key))

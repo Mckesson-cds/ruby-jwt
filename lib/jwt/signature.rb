@@ -7,6 +7,8 @@ require 'jwt/algos/eddsa'
 require 'jwt/algos/ecdsa'
 require 'jwt/algos/rsa'
 require 'jwt/algos/unsupported'
+require 'jwt/raise_error_behavior'
+
 begin
   require 'rbnacl'
 rescue LoadError
@@ -17,7 +19,10 @@ end
 module JWT
   # Signature logic for JWT
   module Signature
+    include RaiseErrorBehavior
+
     extend self
+
     ALGOS = [
       Algos::Hmac,
       Algos::Ecdsa,
@@ -25,6 +30,7 @@ module JWT
       Algos::Eddsa,
       Algos::Unsupported
     ].freeze
+
     ToSign = Struct.new(:algorithm, :msg, :key)
     ToVerify = Struct.new(:algorithm, :public_key, :signing_input, :signature)
 
@@ -40,9 +46,9 @@ module JWT
         alg.const_get(:SUPPORTED).include? algorithm
       end
       verified = algo.verify(ToVerify.new(algorithm, key, signing_input, signature))
-      raise(JWT::VerificationError, 'Signature verification raised') unless verified
+      handle_error(:base, JWT::VerificationError, 'Signature verification raised') unless verified
     rescue OpenSSL::PKey::PKeyError
-      raise JWT::VerificationError, 'Signature verification raised'
+      handle_error(:base, JWT::VerificationError, 'Signature verification raised')
     ensure
       OpenSSL.errors.clear
     end

@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 require 'jwt/error'
+require 'jwt/raise_error_behavior'
 
 module JWT
   # JWT verify methods
   class Verify
+    include RaiseErrorBehavior
+
     DEFAULTS = {
       leeway: 0
     }.freeze
@@ -33,19 +36,19 @@ module JWT
       return unless (options_aud = @options[:aud])
 
       aud = @payload['aud']
-      raise(JWT::InvalidAudError, "Invalid audience. Expected #{options_aud}, received #{aud || '<none>'}") if ([*aud] & [*options_aud]).empty?
+      handle_error(:aud, JWT::InvalidAudError, "Invalid audience. Expected #{options_aud}, received #{aud || '<none>'}") if ([*aud] & [*options_aud]).empty?
     end
 
     def verify_expiration
       return unless @payload.include?('exp')
-      raise(JWT::ExpiredSignature, 'Signature has expired') if @payload['exp'].to_i <= (Time.now.to_i - exp_leeway)
+      handle_error(:exp, JWT::ExpiredSignature, 'Signature has expired') if @payload['exp'].to_i <= (Time.now.to_i - exp_leeway)
     end
 
     def verify_iat
       return unless @payload.include?('iat')
 
       iat = @payload['iat']
-      raise(JWT::InvalidIatError, 'Invalid iat') if !iat.is_a?(Numeric) || iat.to_f > Time.now.to_f
+      handle_error(:iat, JWT::InvalidIatError, 'Invalid iat') if !iat.is_a?(Numeric) || iat.to_f > Time.now.to_f
     end
 
     def verify_iss
@@ -55,7 +58,7 @@ module JWT
 
       return if Array(options_iss).map(&:to_s).include?(iss.to_s)
 
-      raise(JWT::InvalidIssuerError, "Invalid issuer. Expected #{options_iss}, received #{iss || '<none>'}")
+      handle_error(:iss, JWT::InvalidIssuerError, "Invalid issuer. Expected #{options_iss}, received #{iss || '<none>'}")
     end
 
     def verify_jti
@@ -64,21 +67,21 @@ module JWT
 
       if options_verify_jti.respond_to?(:call)
         verified = options_verify_jti.arity == 2 ? options_verify_jti.call(jti, @payload) : options_verify_jti.call(jti)
-        raise(JWT::InvalidJtiError, 'Invalid jti') unless verified
+        handle_error(:jti, JWT::InvalidJtiError, 'Invalid jti') unless verified
       elsif jti.to_s.strip.empty?
-        raise(JWT::InvalidJtiError, 'Missing jti')
+        handle_error(:jti, JWT::InvalidJtiError, 'Missing jti')
       end
     end
 
     def verify_not_before
       return unless @payload.include?('nbf')
-      raise(JWT::ImmatureSignature, 'Signature nbf has not been reached') if @payload['nbf'].to_i > (Time.now.to_i + nbf_leeway)
+      handle_error(:nbf, JWT::ImmatureSignature, 'Signature nbf has not been reached') if @payload['nbf'].to_i > (Time.now.to_i + nbf_leeway)
     end
 
     def verify_sub
       return unless (options_sub = @options[:sub])
       sub = @payload['sub']
-      raise(JWT::InvalidSubError, "Invalid subject. Expected #{options_sub}, received #{sub || '<none>'}") unless sub.to_s == options_sub.to_s
+      handle_error(:sub, JWT::InvalidSubError, "Invalid subject. Expected #{options_sub}, received #{sub || '<none>'}") unless sub.to_s == options_sub.to_s
     end
 
     private
